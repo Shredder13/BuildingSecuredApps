@@ -19,7 +19,6 @@ public class EncryptAndSign {
 
     public EncryptAndSign() {
         plaintext = null;
-
         // default values in case we would not be able to read from the config
         encryptAlgo = "RSA";
         algoMode = "CBC";
