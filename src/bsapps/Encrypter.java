@@ -1,6 +1,6 @@
 package bsapps;
 
-import javax.crypto.Cipher;
+import SunJCE
 
 /**
  * In charge of encrypting a file using the Cipher Class

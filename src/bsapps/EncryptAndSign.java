@@ -22,7 +22,7 @@ public class EncryptAndSign {
         // default values in case we would not be able to read from the config
         encryptAlgo = "RSA";
         algoMode = "CBC";
-        cryptoProvider = "???";
+        cryptoProvider = "SunJCE";
     }
 
     public void handleFile(Path path) {
