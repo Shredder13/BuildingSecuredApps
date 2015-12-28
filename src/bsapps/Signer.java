@@ -3,13 +3,10 @@ package bsapps;
 /**
  *
  */
-public class Signer {
+public static class Signer {
 
-    public Signer() {
 
-    }
-
-    public void sign() {
+    public static void sign() {
 
     }
 }

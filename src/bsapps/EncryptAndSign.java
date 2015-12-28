@@ -29,7 +29,6 @@ public class EncryptAndSign {
         if (path.toFile() != null) {
             readFile(path);
             getConfigurations();
-            Encrypter encrypter = new Encrypter();
             encrypter.encrypt(plaintext, encryptAlgo, algoMode, cryptoProvider);
             Signer signer = new Signer();
             signer.sign();
