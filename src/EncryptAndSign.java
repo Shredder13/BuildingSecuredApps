@@ -1,5 +1,3 @@
-package bsapps;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -16,6 +14,7 @@ public class EncryptAndSign {
     private String encryptAlgo;
     private String algoMode;
     private String cryptoProvider;
+    private String padding;
 
     public EncryptAndSign() {
         plaintext = null;
@@ -23,15 +22,16 @@ public class EncryptAndSign {
         encryptAlgo = "RSA";
         algoMode = "CBC";
         cryptoProvider = "SunJCE";
+        padding = "PKCS5Padding";
     }
 
     public void handleFile(Path path) {
         if (path.toFile() != null) {
             readFile(path);
             getConfigurations();
-            encrypter.encrypt(plaintext, encryptAlgo, algoMode, cryptoProvider);
-            Signer signer = new Signer();
-            signer.sign();
+            //Encrypter.encrypt(plaintext, encryptAlgo, algoMode, cryptoProvider);
+            //Signer signer = new Signer();
+            //signer.sign();
         }
     }
 
@@ -44,6 +44,7 @@ public class EncryptAndSign {
             encryptAlgo = properties.getProperty("encrypt_algorithm");
             algoMode = properties.getProperty("algorithm_mode");
             cryptoProvider = properties.getProperty("crypto_provider");
+            padding = properties.getProperty("padding");
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
