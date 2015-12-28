@@ -9,8 +9,8 @@ public class Main {
 
     public static void main(String[] args) {
         EncryptAndSign eas = new EncryptAndSign();
-        if (args.length < 1) {
-            System.out.println("Usage: EnryptAndSign.jar <File Path>");
+        if ((args.length != 2) {
+            System.out.println("Usage: EnryptAndSign.jar <File Path> <Keystore Password>");
             return;
         } else {
             Path path = Paths.get(args[0]);
