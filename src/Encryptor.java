@@ -15,7 +15,10 @@ import javax.crypto.spec.IvParameterSpec;
 /**
  * In charge of encrypting a file using the Cipher Class
  */
-public class Encrypter {
+public class Encryptor {
+
+    private final String KEYSTORE_TYPE = "JCEKS";
+    private final String SIGN_PROVIDER = "SunRsaSign";
 
     private String encryptAlgo = "AES";
     private String algoMode = "CBC";
@@ -33,11 +36,11 @@ public class Encrypter {
 
 
 
-    public Encrypter() {
+    public Encryptor() {
 
         setConfigurations();
         try {
-            keystore = KeyStore.getInstance("JCEKS", cryptoProvider);
+            keystore = KeyStore.getInstance(KEYSTORE_TYPE, cryptoProvider);
         } catch (Exception e) {
             //TODO: treat the exception
             e.getMessage();
@@ -83,7 +86,7 @@ public class Encrypter {
             ciphKey.init(Cipher.ENCRYPT_MODE, pubKey);
             byte[] encKey = ciphKey.doFinal(sk.getEncoded());
 
-            signature = initSignature(signatureAlgo, "SunRsaSign", priKey);
+            signature = initSignature(signatureAlgo, SIGN_PROVIDER, priKey);
 
             // initialize cipher for plaintext encryption
             String ciphInit = encryptAlgo + '/' + algoMode + '/' + padding;
@@ -92,7 +95,7 @@ public class Encrypter {
 
 
             FileInputStream fis = new FileInputStream(path.toString());
-            CipherOutputStream cos = new CipherOutputStream(new FileOutputStream("encripted"), ciph);
+            CipherOutputStream cos = new CipherOutputStream(new FileOutputStream("encrypted"), ciph);
             readAndEncrypt(fis, cos);
 
             byte[] signedSig = signature.sign();
@@ -162,15 +165,18 @@ public class Encrypter {
             Files.write(path, line.getBytes());
             line = "cipher_algorithm_mode=" + cipherAlgoMode + "\n";
             Files.write(path, line.getBytes());
-            line = "encripted_key=" + "\n";
+            line = "encripted_key=";
             Files.write(path, line.getBytes());
             Files.write(path, encriptedKey);
-            line = "file_signature=" + "\n";
+            Files.write(path, "\n".getBytes());
+            line = "file_signature=";
             Files.write(path, line.getBytes());
             Files.write(path, signature);
-            line = "iv=" + "\n";
+            Files.write(path, "\n".getBytes());
+            line = "iv=";
             Files.write(path, line.getBytes());
             Files.write(path, iv);
+            Files.write(path, "\n".getBytes());
         } catch (Exception e) {
             // TODO
         }
