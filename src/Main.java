@@ -40,7 +40,6 @@ public class Main {
                 Decryptor decrypter = new Decryptor();
                 decrypter.decrypt(toDecrypt, config, keyStoreName, keyStorePass, certAlias, keyAlias, keyAliasPass);
             }
-
         }
     }
 }

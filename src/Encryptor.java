@@ -100,7 +100,7 @@ public class Encryptor {
 
             byte[] signedSig = signature.sign();
 
-            writeToConfig(encKey, signedSig, ivArr);
+            writeToConfig2(encKey, signedSig, ivArr);
 
         } catch (Exception e) {
             //TODO
@@ -183,20 +183,20 @@ public class Encryptor {
         }
     }
 
-//    private void writeToConfig2(byte[] encriptedKey, byte[] signature, byte[] iv) {
-//        try{
-//            Writer conf = new PrintWriter(new FileOutputStream("encrypted_output"));
-//            conf.write(DatatypeConverter.parseBase64Binary(encriptedKey) + "\n");
-//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
-//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
-//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
-//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
-//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
-//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
-//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
-//
-//        } catch (Exception e) {
-//
-//        }
-//    }
+    private void writeToConfig2(byte[] encryptedKey, byte[] signature, byte[] iv) {
+        try{
+            Writer conf = new PrintWriter(new FileOutputStream("encrypted_output"));
+            conf.write(encryptAlgo + "\n");
+            conf.write(signatureAlgo + "\n");
+            conf.write(keyEncryptAlgo + "\n");
+            conf.write(cipherAlgoMode + "\n");
+            conf.write(DatatypeConverter.printBase64Binary(encryptedKey) + "\n");
+            conf.write(DatatypeConverter.printBase64Binary(signature) + "\n");
+            conf.write(DatatypeConverter.printBase64Binary(iv) + "\n");
+            conf.close();
+
+        } catch (Exception e) {
+
+        }
+    }
 }
