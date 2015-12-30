@@ -1,4 +1,4 @@
-package bsapps;
+
 
 //import javax.crypto.CipherOutputStream;
 import java.nio.file.Path;
@@ -9,12 +9,14 @@ public class Main {
 
     public static void main(String[] args) {
         EncryptAndSign eas = new EncryptAndSign();
-        if ((args.length != 2) {
-            System.out.println("Usage: EnryptAndSign.jar <File Path> <Keystore Password>");
+        if (args.length != 3) {
+            System.out.println("Usage: EnryptAndSign.jar <File Path> <Keystore name> <Keystore Password>");
             return;
         } else {
             Path path = Paths.get(args[0]);
-            eas.handleFile(path);
+            eas.setKeystorePass(args[2]);
+            eas.setKeystore(args[1]);
+            eas.ecryptAndSign(path);
 
             // AES with CBC and random IV
             // the key for the AES we randomly select using a function from the API
