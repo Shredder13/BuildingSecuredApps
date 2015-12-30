@@ -2,6 +2,7 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.file.Path;
 import java.security.*;
@@ -23,6 +24,8 @@ public class Decryptor {
     private Certificate certificate;
     private byte[] signatureBytes;
     private byte[] ivBytes;
+    private byte[] encryptKey;
+    private Signature signat;
 
     public Decryptor() {
 
@@ -42,7 +45,7 @@ public class Decryptor {
             PrivateKey priKey = null;
             if (key != null) {
                 if (key instanceof PrivateKey) {
-                    priKey = (PrivateKey) key;
+                    priKey = (PrivateKey)key;
                 } else {
                     //TODO
                 }
@@ -64,11 +67,13 @@ public class Decryptor {
             // get symmetric key using the private key we've got
             Cipher ciph = Cipher.getInstance(keyEncryptAlgo);
             ciph.init(Cipher.DECRYPT_MODE, priKey);
-            byte[] decKey = ciph.doFinal(encryptedKey.getBytes());
+            System.out.println(encryptedKey);
+            byte[] decKey = ciph.doFinal(encryptKey);
             Key secret = new SecretKeySpec(decKey, encryptAlgo);
 
-            Signature signa = Signature.getInstance(signatureAlgo);
-            signa.initVerify(pubKey);
+            signat = Signature.getInstance(signatureAlgo);
+            signat.initVerify(pubKey);
+
 
             IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 
@@ -78,7 +83,16 @@ public class Decryptor {
             CipherInputStream cis = new CipherInputStream(new FileInputStream(encrypted.toFile()), ciph);
             readAndDecrypt(cis);
 
+            if (signat.verify(signatureBytes)) {
+                System.out.println("Signature verified successfully");
+
+            } else {
+                System.out.println("Signature does not match!");
+                File file = new File("decrypted");
+                file.delete();
+            }
         } catch (Exception e) {
+            //TODO
             e.printStackTrace();
         }
     }
@@ -88,15 +102,20 @@ public class Decryptor {
             FileReader reader = new FileReader(config.toFile());
             Properties prop = new Properties();
             prop.load(reader);
-            encryptAlgo = prop.getProperty("encrypt_algorithm");
+            encryptAlgo = prop.getProperty("encryption_algorithm");
             signatureAlgo = prop.getProperty("signature_algorithm");
-            keyEncryptAlgo = prop.getProperty("key_encription_algorithm");
+            keyEncryptAlgo = prop.getProperty("key_encryption_algorithm");
             cipherAlgoMode = prop.getProperty("cipher_algorithm_mode");
-            encryptedKey = prop.getProperty("encripted_key");
+            encryptedKey = prop.getProperty("encrypted_key");
+            encryptedKey.replace("\n", "");
+            encryptKey = DatatypeConverter.parseBase64Binary(encryptedKey);
             signature = prop.getProperty("file_signature");
-            signatureBytes = signature.getBytes();
+            signature.replace("\n", "");
+            signatureBytes = DatatypeConverter.parseBase64Binary(signature);
             iv = prop.getProperty("iv");
-            ivBytes = iv.getBytes();
+            iv.replace("\n", "");
+            ivBytes = DatatypeConverter.parseBase64Binary(iv);
+            reader.close();
         } catch (IOException e) {
             //TODO
             e.printStackTrace();
@@ -109,7 +128,7 @@ public class Decryptor {
             FileOutputStream fos = new FileOutputStream("decrypted");
             int num = cis.read(buff);
             while (num != -1) {
-                //signatureBytes.(buff, 0, num);
+                signat.update(buff, 0, num);
                 fos.write(buff, 0 ,num);
                 num = cis.read(buff);
             }

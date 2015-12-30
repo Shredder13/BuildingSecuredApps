@@ -9,7 +9,7 @@ public class Main {
                 "<Keystore Password> <Key Alias> <Key Password> <Certificate Alias>" + "\n OR 2: EncryptAndSign.jar " +
                 "<Mode: Encrypt> <File to Decrypt Path> <Config File Path> <Keystore name> + \n" +
                 "<Keystore Password> <Key Alias> <Key Password> <Certificate Alias>";
-        if (args[0] == "Encrypt") {
+        if (args[0].equals("Encrypt")) {
             if (args.length != 7) {
                 System.out.println(usage);
                 return;
@@ -23,7 +23,7 @@ public class Main {
                 Encryptor encrypter = new Encryptor();
                 encrypter.encrypt(path, keyStoreName, keyStorePass, certAlias, keyAlias, keyAliasPass);
             }
-        } else if (args[0] != "Decrypt") {
+        } else if (!(args[0].equals("Decrypt"))) {
             System.out.println(usage);
         } else {
             if (args.length != 8) {

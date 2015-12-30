@@ -6,11 +6,13 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.util.Properties;
 
 import javax.crypto.spec.IvParameterSpec;
+import javax.xml.bind.DatatypeConverter;
 
 /**
  * In charge of encrypting a file using the Cipher Class
@@ -48,9 +50,7 @@ public class Encryptor {
     }
     public void encrypt(Path path, String keystoreName, String keystorePass, String certAlias,
                           String keyAlias, String keyAliasPass) {
-        byte[] res = null;
         try {
-
             // generate a key for the encryption
             KeyGenerator kg = KeyGenerator.getInstance(encryptAlgo, cryptoProvider);
             SecretKey sk = kg.generateKey();
@@ -156,31 +156,47 @@ public class Encryptor {
 
     private void writeToConfig(byte[] encriptedKey, byte[] signature, byte[] iv) {
         try {
-            Path path = Paths.get("encrypted_output");
+            FileOutputStream fos = new FileOutputStream(new File("encrypted_output"));
             String line = "encryption_algorithm=" + encryptAlgo + "\n";
-            Files.write(path, line.getBytes());
+            fos.write(line.getBytes());
             line = "signature_algorithm=" + signatureAlgo + "\n";
-            Files.write(path, line.getBytes());
-            line = "key_encription_algorithm=" + keyEncryptAlgo + "\n";
-            Files.write(path, line.getBytes());
+            fos.write(line.getBytes());
+            line = "key_encryption_algorithm=" + keyEncryptAlgo + "\n";
+            fos.write(line.getBytes());
             line = "cipher_algorithm_mode=" + cipherAlgoMode + "\n";
-            Files.write(path, line.getBytes());
-            line = "encripted_key=";
-            Files.write(path, line.getBytes());
-            Files.write(path, encriptedKey);
-            Files.write(path, "\n".getBytes());
+            fos.write(line.getBytes());
+            line = "encrypted_key=";
+            fos.write(line.getBytes());
+            fos.write(DatatypeConverter.printBase64Binary(encriptedKey).getBytes());
+            fos.write("\n".getBytes());
             line = "file_signature=";
-            Files.write(path, line.getBytes());
-            Files.write(path, signature);
-            Files.write(path, "\n".getBytes());
+            fos.write(line.getBytes());
+            fos.write(DatatypeConverter.printBase64Binary(signature).getBytes());
+            fos.write("\n".getBytes());
             line = "iv=";
-            Files.write(path, line.getBytes());
-            Files.write(path, iv);
-            Files.write(path, "\n".getBytes());
+            fos.write(line.getBytes());
+            fos.write(DatatypeConverter.printBase64Binary(iv).getBytes());
+            fos.flush();
+            fos.close();
         } catch (Exception e) {
             // TODO
         }
-
-
     }
+
+//    private void writeToConfig2(byte[] encriptedKey, byte[] signature, byte[] iv) {
+//        try{
+//            Writer conf = new PrintWriter(new FileOutputStream("encrypted_output"));
+//            conf.write(DatatypeConverter.parseBase64Binary(encriptedKey) + "\n");
+//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
+//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
+//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
+//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
+//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
+//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
+//            conf.write(DatatypeConverter.parseBase64Binary(encryptAlgo) + "\n");
+//
+//        } catch (Exception e) {
+//
+//        }
+//    }
 }
