@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.util.Properties;
-import java.util.Scanner;
 
 public class Decryptor {
 
@@ -63,18 +62,16 @@ public class Decryptor {
             }
 
             // read configurations from file
-            getConfigurations2(config);
+            getConfigurations(config);
 
             // get symmetric key using the private key we've got
             Cipher ciph = Cipher.getInstance(keyEncryptAlgo);
             ciph.init(Cipher.DECRYPT_MODE, priKey);
-            System.out.println(encryptedKey);
             byte[] decKey = ciph.doFinal(encryptKey);
             Key secret = new SecretKeySpec(decKey, encryptAlgo);
 
             signat = Signature.getInstance(signatureAlgo);
             signat.initVerify(pubKey);
-
 
             IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 
@@ -123,29 +120,9 @@ public class Decryptor {
         }
     }
 
-    private void getConfigurations2(Path config) {
-        try {
-            Scanner confScan = new Scanner(new FileInputStream(config.toFile()));
-            encryptAlgo = confScan.nextLine();
-            signatureAlgo = confScan.nextLine();
-            keyEncryptAlgo = confScan.nextLine();
-            cipherAlgoMode = confScan.nextLine();
-            encryptedKey = confScan.nextLine();
-            encryptKey = DatatypeConverter.parseBase64Binary(encryptedKey);
-            signature = confScan.nextLine();
-            signatureBytes = DatatypeConverter.parseBase64Binary(signature);
-            iv = confScan.nextLine();
-            ivBytes = DatatypeConverter.parseBase64Binary(iv);
-            confScan.close();
-        } catch (IOException e) {
-            //TODO
-            e.printStackTrace();
-        }
-    }
-
     private void readAndDecrypt(CipherInputStream cis) {
         try {
-            byte[] buff = new byte[1024];
+            byte[] buff = new byte[256];
             FileOutputStream fos = new FileOutputStream("decrypted");
             int num = cis.read(buff);
             while (num != -1) {

@@ -3,14 +3,15 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.security.*;
+import java.security.Signature;
+import java.security.KeyStore;
+import java.security.Key;
+import java.security.SecureRandom;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.util.Properties;
-
 import javax.crypto.spec.IvParameterSpec;
 import javax.xml.bind.DatatypeConverter;
 
@@ -100,7 +101,7 @@ public class Encryptor {
 
             byte[] signedSig = signature.sign();
 
-            writeToConfig2(encKey, signedSig, ivArr);
+            writeToConfig(encKey, signedSig, ivArr);
 
         } catch (Exception e) {
             //TODO
@@ -109,7 +110,7 @@ public class Encryptor {
     }
 
     private void readAndEncrypt(FileInputStream fis, CipherOutputStream cos) {
-        byte[] buff = new byte[1024];
+        byte[] buff = new byte[256];
         try {
             int num = fis.read(buff);
             while (num != -1) {
@@ -180,23 +181,6 @@ public class Encryptor {
             fos.close();
         } catch (Exception e) {
             // TODO
-        }
-    }
-
-    private void writeToConfig2(byte[] encryptedKey, byte[] signature, byte[] iv) {
-        try{
-            Writer conf = new PrintWriter(new FileOutputStream("encrypted_output"));
-            conf.write(encryptAlgo + "\n");
-            conf.write(signatureAlgo + "\n");
-            conf.write(keyEncryptAlgo + "\n");
-            conf.write(cipherAlgoMode + "\n");
-            conf.write(DatatypeConverter.printBase64Binary(encryptedKey) + "\n");
-            conf.write(DatatypeConverter.printBase64Binary(signature) + "\n");
-            conf.write(DatatypeConverter.printBase64Binary(iv) + "\n");
-            conf.close();
-
-        } catch (Exception e) {
-
         }
     }
 }
