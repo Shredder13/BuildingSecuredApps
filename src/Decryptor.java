@@ -32,8 +32,8 @@ public class Decryptor {
         try {
             keystore = KeyStore.getInstance(KEYSTORE_TYPE);
         } catch (KeyStoreException e) {
-            // TODO
-            e.printStackTrace();
+            System.out.println("Could not access the Keystore. Please re-run and make sure you insert the " +
+                    "right path, name and password");
         }
     }
 
@@ -47,10 +47,14 @@ public class Decryptor {
                 if (key instanceof PrivateKey) {
                     priKey = (PrivateKey)key;
                 } else {
-                    //TODO
+                    System.out.println("Given key in keystore is not a private key. Please make sure you insert a" +
+                            "valid keystore with correct keys.");
+                    return;
                 }
             } else {
-                //TODO
+                System.out.println("Could not find a key in the keystore. Please make sure you insert a" +
+                        "valid keystore with correct keys.");
+                return;
             }
 
             certificate = keystore.getCertificate(certAlias);
@@ -58,7 +62,9 @@ public class Decryptor {
             if (certificate != null) {
                 pubKey = certificate.getPublicKey();
             } else {
-                //TODO
+                System.out.println("Could not find certificate in the given keystore. Please make sure you insert a" +
+                        "valid keystore with certificates.");
+                return;
             }
 
             // read configurations from file
@@ -78,20 +84,21 @@ public class Decryptor {
             ciph = Cipher.getInstance(cipherAlgoMode);
             ciph.init(Cipher.DECRYPT_MODE, secret, ivSpec);
 
-            CipherInputStream cis = new CipherInputStream(new FileInputStream(encrypted.toFile()), ciph);
-            readAndDecrypt(cis);
-
             if (signat.verify(signatureBytes)) {
-                System.out.println("Signature verified successfully");
-
+                System.out.println("Signature verified successfully.");
+                CipherInputStream cis = new CipherInputStream(new FileInputStream(encrypted.toFile()), ciph);
+                readAndDecrypt(cis);
             } else {
-                System.out.println("Signature does not match!");
+                String notMatch = "Signatures does not match.";
+                System.out.println(notMatch);
                 File file = new File("decrypted");
-                file.delete();
+                FileOutputStream fos = new FileOutputStream(file);
+                fos.write(notMatch.getBytes());
             }
         } catch (Exception e) {
-            //TODO
-            e.printStackTrace();
+            System.out.println("We could not decrypt the given file. Please make sure you insert the right" +
+                    "variables and keystore information.");
+            return;
         }
     }
 
@@ -115,8 +122,9 @@ public class Decryptor {
             ivBytes = DatatypeConverter.parseBase64Binary(iv);
             reader.close();
         } catch (IOException e) {
-            //TODO
-            e.printStackTrace();
+            System.out.println("We could not read the configuration file you've inserted. Make sure that the path " +
+                    "is correct and the file's permissions");
+            return;
         }
     }
 
@@ -133,8 +141,9 @@ public class Decryptor {
             cis.close();
             fos.close();
         } catch (Exception e) {
-            // TODO
-            e.printStackTrace();
+            System.out.println("A problem occured while reading and decrypting the given file. Make sure the file" +
+                    " path is correct.");
+            return;
         }
     }
 

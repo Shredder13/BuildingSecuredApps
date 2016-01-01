@@ -45,8 +45,8 @@ public class Encryptor {
         try {
             keystore = KeyStore.getInstance(KEYSTORE_TYPE, cryptoProvider);
         } catch (Exception e) {
-            //TODO: treat the exception
-            e.getMessage();
+            System.out.println("Could not access the Keystore. Please re-run and make sure you insert the " +
+                    "right path, name and password");
         }
     }
     public void encrypt(Path path, String keystoreName, String keystorePass, String certAlias,
@@ -70,7 +70,9 @@ public class Encryptor {
                 if (ek instanceof PrivateKey) {
                     priKey = (PrivateKey)ek;
                 } else {
-                    //TODO
+                    System.out.println("Given key in keystore is not a private key. Please make sure you insert a" +
+                            "valid keystore with correct keys.");
+                    return;
                 }
             }
             // get public key from certificate
@@ -79,7 +81,9 @@ public class Encryptor {
             if (certificate != null) {
                 pubKey = certificate.getPublicKey();
             } else {
-                //TODO
+                System.out.println("Could not find certificate in the given keystore. Please make sure you insert a" +
+                        "valid keystore with certificates.");
+                return;
             }
 
             // encryption to the encription algorithm key
@@ -88,6 +92,11 @@ public class Encryptor {
             byte[] encKey = ciphKey.doFinal(sk.getEncoded());
 
             signature = initSignature(signatureAlgo, SIGN_PROVIDER, priKey);
+            if (signature == null) {
+                System.out.println("We could not initialize the signature from the given config file. Make sure you have " +
+                        "given the right file path");
+                return;
+            }
 
             // initialize cipher for plaintext encryption
             String ciphInit = encryptAlgo + '/' + algoMode + '/' + padding;
@@ -103,9 +112,12 @@ public class Encryptor {
 
             writeToConfig(encKey, signedSig, ivArr);
 
+            System.out.println("");
+
         } catch (Exception e) {
-            //TODO
-            System.out.println(e.getMessage());
+            System.out.println("We could not encrypt the given file. Please make sure you insert the right" +
+                    " variables and keystore information.");
+            return;
         }
     }
 
@@ -122,7 +134,9 @@ public class Encryptor {
             cos.close();
 
         } catch (Exception e) {
-            //TODO
+            System.out.println("A problem occured while reading and encrypting the given file. Make sure the file" +
+                    " path is correct.");
+            return;
         }
     }
 
@@ -132,8 +146,8 @@ public class Encryptor {
             signa = Signature.getInstance(signatureAlgo, cryptoProv);
             signa.initSign(key);
         } catch (Exception e) {
-            // TODO: handle
-            e.getMessage();
+            System.out.println("Signature could not be initialized.");
+            return null;
         }
         return signa;
     }
@@ -180,7 +194,8 @@ public class Encryptor {
             fos.flush();
             fos.close();
         } catch (Exception e) {
-            // TODO
+            System.out.println("A problem occured while writing to the configuration file. Please try again.");
+            return;
         }
     }
 }
